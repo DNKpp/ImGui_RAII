@@ -33,7 +33,7 @@ Below the straight forward way is shown.
 
 void my_render()
 {
-	imgui_raii::NextFrame frame{};		// when this object gets destroyed, it calls ImGui::Render()
+	imgui_raii::NewFrame frame{};		// when this object gets destroyed, it calls ImGui::Render()
 
 	// Begin and many more classes are usable in any boolean context
 	if (imgui_raii::Begin win{ "Hello, World!" })
@@ -72,7 +72,7 @@ void my_render()
 	As you can see anonymous objects for chaining are completely fine!
 	ImGui::NextFrame() doesn't return a bool, thus the chained lambda will always be executed.
 	*/
-	imgui_raii::NextFrame{} /
+	imgui_raii::NewFrame{} /
 		[]
 		{
 			// ImGui::Begin does return a bool, thus the chained lambda will only be executed if true has been returned.
@@ -90,9 +90,8 @@ void my_render()
 						// early return is still possible, but of course will only return from the local lambda
 						return;
 					}
-				}
-				
-		}
+				};
+		};
 
 	// no end operations needed!
 }
