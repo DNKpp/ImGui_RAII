@@ -146,6 +146,11 @@ namespace imgui_raii::detail
 	{
 		return ImGui::BeginTabItem(std::forward<TArgs>(args)...);
 	};
+
+	constexpr auto beginTable = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginTable(std::forward<TArgs>(args)...);
+	};
 }
 
 namespace imgui_raii
@@ -211,6 +216,7 @@ namespace imgui_raii
 	using BeginMenu = detail::ConditionalRAIIWrapper<detail::beginMenu, &ImGui::EndMenu, true>;
 	using BeginTabBar = detail::ConditionalRAIIWrapper<detail::beginTabBar, &ImGui::EndTabBar, true>;
 	using BeginTabItem = detail::ConditionalRAIIWrapper<detail::beginTabItem, &ImGui::EndTabItem, true>;
+	using BeginTable = detail::ConditionalRAIIWrapper<detail::beginTable, &ImGui::EndTable, true>;
 
 	using BeginDisabled = detail::RAIIWrapper<detail::beginDisabled, &ImGui::EndDisabled>;
 	using BeginGroup = detail::RAIIWrapper<&ImGui::BeginGroup, &ImGui::EndGroup>;
