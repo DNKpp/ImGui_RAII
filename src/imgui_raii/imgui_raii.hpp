@@ -198,6 +198,7 @@ namespace imgui_raii
 	using BeginListBox = detail::ConditionalRAIIWrapper<detail::beginListBox, &ImGui::EndListBox, true>;
 	using BeginMenuBar = detail::ConditionalRAIIWrapper<detail::beginMenuBar, &ImGui::EndMenuBar, true>;
 	using BeginMainMenuBar = detail::ConditionalRAIIWrapper<detail::beginMainMenuBar, &ImGui::EndMainMenuBar, true>;
+	using BeginMenu = detail::ConditionalRAIIWrapper<detail::beginMenu, &ImGui::EndMenu, true>;
 
 	using BeginDisabled = detail::RAIIWrapper<detail::beginDisabled, &ImGui::EndDisabled>;
 	using BeginGroup = detail::RAIIWrapper<&ImGui::BeginGroup, &ImGui::EndGroup>;
