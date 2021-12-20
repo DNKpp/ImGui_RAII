@@ -155,7 +155,7 @@ namespace imgui_raii::detail
 
 namespace imgui_raii
 {
-	class Context
+	class BeginContext
 	{
 	public:
 		template <class... TArgs>
@@ -164,24 +164,24 @@ namespace imgui_raii
 				{ ImGui::CreateContext(std::declval<TArgs>()...) } -> std::convertible_to<ImGuiContext*>;
 			}
 		[[nodiscard]]
-		explicit Context(TArgs&&... args) :
+		explicit BeginContext(TArgs&&... args) :
 			m_Context{ ImGui::CreateContext(std::forward<TArgs>(args)...) }
 		{
 		}
 
 		[[nodiscard]]
-		Context(Context&& other) noexcept :
+		BeginContext(BeginContext&& other) noexcept :
 			m_Context{ std::exchange(other.m_Context, nullptr) }
 		{
 		}
 
-		Context& operator =(Context&& other) noexcept
+		BeginContext& operator =(BeginContext&& other) noexcept
 		{
 			std::swap(m_Context, other.m_Context);
 			return *this;
 		}
 
-		~Context() noexcept
+		~BeginContext() noexcept
 		{
 			if (m_Context)
 				ImGui::DestroyContext(m_Context);
@@ -199,8 +199,8 @@ namespace imgui_raii
 			return m_Context;
 		}
 
-		Context(const Context&) = delete;
-		Context& operator =(const Context&) = delete;
+		BeginContext(const BeginContext&) = delete;
+		BeginContext& operator =(const BeginContext&) = delete;
 
 	private:
 		ImGuiContext* m_Context{};
