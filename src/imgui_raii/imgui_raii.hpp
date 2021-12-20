@@ -157,6 +157,24 @@ namespace imgui_raii
 		{
 		}
 	};
+
+	class BeginChildFrame :
+		public detail::ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndChildFrame, false>
+	{
+		using super = ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndChildFrame, false>;
+
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::BeginChildFrame(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
+			}
+		explicit BeginChildFrame(TArgs&&... args) :
+			super{ ImGui::BeginChildFrame(std::forward<TArgs>(args)...) }
+
+		{
+		}
+	};
 }
 
 #endif
