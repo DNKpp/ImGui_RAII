@@ -220,6 +220,8 @@ namespace imgui_raii
 
 	using BeginDisabled = detail::RAIIWrapper<detail::beginDisabled, &ImGui::EndDisabled>;
 	using BeginGroup = detail::RAIIWrapper<&ImGui::BeginGroup, &ImGui::EndGroup>;
+	using BeginTooltip = detail::RAIIWrapper<&ImGui::BeginTooltip, &ImGui::EndTooltip>;
+	using NewFrame = detail::RAIIWrapper<&ImGui::NewFrame, &ImGui::Render>;
 }
 
 #endif
