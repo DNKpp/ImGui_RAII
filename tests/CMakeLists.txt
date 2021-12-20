@@ -18,7 +18,7 @@ add_executable(
 target_link_libraries(
 	ImGui_RAII_Tests
 	PRIVATE
-	ImGui_RAII
+	ImGui_RAII::ImGui_RAII
 	Catch2::Catch2
 )
 
