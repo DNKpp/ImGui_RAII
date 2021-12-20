@@ -225,33 +225,46 @@ namespace imgui_raii
 	class BeginDisabled :
 		public detail::RAIIWrapper<BeginDisabled, &ImGui::EndDisabled>
 	{
-		using super = RAIIWrapper<BeginDisabled, &ImGui::EndDisabled>;
-
 	public:
 		template <class... TArgs>
 			requires requires
 			{
 				{ ImGui::BeginDisabled(std::declval<TArgs>()...) };
 			}
-		explicit BeginDisabled(TArgs&&... args) :
-			super{ ImGui::BeginDisabled(std::forward<TArgs>(args)...) }
+		explicit BeginDisabled(TArgs&&... args)
 		{
+			ImGui::BeginDisabled(std::forward<TArgs>(args)...);
 		}
 	};
 
 	class BeginGroup :
 		public detail::RAIIWrapper<BeginGroup, &ImGui::EndGroup>
 	{
-		using super = RAIIWrapper<BeginGroup, &ImGui::EndGroup>;
-
 	public:
 		template <class... TArgs>
 			requires requires
 			{
 				{ ImGui::BeginGroup(std::declval<TArgs>()...) };
 			}
-		explicit BeginGroup(TArgs&&... args) :
-			super{ ImGui::BeginGroup(std::forward<TArgs>(args)...) }
+		explicit BeginGroup(TArgs&&... args)
+		{
+			ImGui::BeginGroup(std::forward<TArgs>(args)...);
+		}
+	};
+
+	class BeginListBox :
+		public detail::ConditionalRAIIWrapper<BeginListBox, &ImGui::EndListBox, true>
+	{
+		using super = ConditionalRAIIWrapper<BeginListBox, &ImGui::EndListBox, true>;
+
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::BeginListBox(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
+			}
+		explicit BeginListBox(TArgs&&... args) :
+			super{ ImGui::BeginListBox(std::forward<TArgs>(args)...) }
 		{
 		}
 	};
