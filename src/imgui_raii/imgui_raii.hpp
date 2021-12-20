@@ -11,10 +11,10 @@ namespace imgui_raii::detail
 	using EndFunc = void(*)();
 
 	template <class TDerived, EndFunc VEnd, bool VConditionalEnd>
-	class RAIIWrapper
+	class ConditionalRAIIWrapper
 	{
 	public:
-		~RAIIWrapper() noexcept
+		~ConditionalRAIIWrapper() noexcept
 		{
 			if constexpr (VConditionalEnd)
 			{
@@ -45,13 +45,13 @@ namespace imgui_raii::detail
 			return cast();
 		}
 
-		RAIIWrapper(const RAIIWrapper&) = delete;
-		RAIIWrapper& operator =(const RAIIWrapper&) = delete;
-		RAIIWrapper(RAIIWrapper&&) = delete;
-		RAIIWrapper& operator =(RAIIWrapper&&) = delete;
+		ConditionalRAIIWrapper(const ConditionalRAIIWrapper&) = delete;
+		ConditionalRAIIWrapper& operator =(const ConditionalRAIIWrapper&) = delete;
+		ConditionalRAIIWrapper(ConditionalRAIIWrapper&&) = delete;
+		ConditionalRAIIWrapper& operator =(ConditionalRAIIWrapper&&) = delete;
 
 	protected:
-		explicit RAIIWrapper(bool result) noexcept :
+		explicit ConditionalRAIIWrapper(bool result) noexcept :
 			m_Result{ result }
 		{
 		}
@@ -62,7 +62,7 @@ namespace imgui_raii::detail
 		[[nodiscard]]
 		TDerived& cast() noexcept
 		{
-			static_assert(std::derived_from<TDerived, RAIIWrapper>, "TDerived must be a subclass if RAIIWrapper");
+			static_assert(std::derived_from<TDerived, ConditionalRAIIWrapper>, "TDerived must be a subclass if ConditionalRAIIWrapper");
 			return static_cast<TDerived&>(*this);
 		}
 	};
@@ -71,9 +71,9 @@ namespace imgui_raii::detail
 namespace imgui_raii
 {
 	class Begin :
-		public detail::RAIIWrapper<Begin, &ImGui::End, false>
+		public detail::ConditionalRAIIWrapper<Begin, &ImGui::End, false>
 	{
-		using super = RAIIWrapper<Begin, &ImGui::End, false>;
+		using super = ConditionalRAIIWrapper<Begin, &ImGui::End, false>;
 
 	public:
 		template <class... TArgs>
