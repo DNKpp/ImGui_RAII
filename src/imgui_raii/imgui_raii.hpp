@@ -15,6 +15,10 @@ namespace imgui_raii::detail
 	{
 	public:
 		template <class... TArgs>
+		requires requires
+		{
+			{ std::invoke(VBeginFunc, std::declval<TArgs>()...) };
+		}
 		explicit RAIIWrapper(TArgs&&... args)
 		{
 			std::invoke(VBeginFunc, std::forward<TArgs>(args)...);
@@ -42,6 +46,10 @@ namespace imgui_raii::detail
 	{
 	public:
 		template <class... TArgs>
+		requires requires
+		{
+			{ std::invoke(VBeginFunc, std::declval<TArgs>()...) } -> std::convertible_to<bool>;
+		}
 		explicit ConditionalRAIIWrapper(TArgs&&... args) :
 			m_Result{ std::invoke(VBeginFunc, std::forward<TArgs>(args)...) }
 		{
