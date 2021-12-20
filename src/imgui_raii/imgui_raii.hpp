@@ -37,10 +37,15 @@ namespace imgui_raii::detail
 		RAIIWrapper& operator =(RAIIWrapper&&) = delete;
 	};
 
-	template <class TDerived, EndFunc VEnd, bool VConditionalEnd>
+	template <auto VBeginFunc, EndFunc VEnd, bool VConditionalEnd>
 	class ConditionalRAIIWrapper
 	{
 	public:
+		template <class... TArgs>
+		explicit ConditionalRAIIWrapper(TArgs&&... args) :
+			m_Result{ std::invoke(VBeginFunc, std::forward<TArgs>(args)...) }
+		{
+		}
 
 		~ConditionalRAIIWrapper() noexcept
 		{
@@ -66,11 +71,11 @@ namespace imgui_raii::detail
 			return m_Result;
 		}
 
-		TDerived& operator /(std::invocable<> auto func)
+		ConditionalRAIIWrapper& operator /(std::invocable<> auto func)
 		{
 			if (m_Result)
 				std::invoke(std::ref(func));
-			return cast();
+			return *this;
 		}
 
 		ConditionalRAIIWrapper(const ConditionalRAIIWrapper&) = delete;
@@ -78,29 +83,58 @@ namespace imgui_raii::detail
 		ConditionalRAIIWrapper(ConditionalRAIIWrapper&&) = delete;
 		ConditionalRAIIWrapper& operator =(ConditionalRAIIWrapper&&) = delete;
 
-	protected:
-		explicit ConditionalRAIIWrapper(bool result) noexcept :
-			m_Result{ result }
-		{
-		}
-
 	private:
 		const bool m_Result;
+	};
 
-		[[nodiscard]]
-		TDerived& cast() noexcept
-		{
-			static_assert(
-				std::derived_from<TDerived, ConditionalRAIIWrapper>,
-				"TDerived must be a subclass if ConditionalRAIIWrapper"
-			);
-			return static_cast<TDerived&>(*this);
-		}
+	constexpr auto begin = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::Begin(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginChild = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginChild(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginChildFrame = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginChildFrame(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginCombo = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginCombo(std::forward<TArgs>(args)...);
 	};
 
 	constexpr auto beginDisabled = []<class... TArgs>(TArgs&&... args)
 	{
 		ImGui::BeginDisabled(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginGroup = []<class... TArgs>(TArgs&&... args)
+	{
+		ImGui::BeginGroup(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginListBox = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginListBox(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginMenuBar = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginMenuBar(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginMainMenuBar = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginMainMenuBar(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto beginMenu = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::BeginMenu(std::forward<TArgs>(args)...);
 	};
 }
 
@@ -157,127 +191,16 @@ namespace imgui_raii
 		ImGuiContext* m_Context{};
 	};
 
-	class Begin :
-		public detail::ConditionalRAIIWrapper<Begin, &ImGui::End, false>
-	{
-		using super = ConditionalRAIIWrapper<Begin, &ImGui::End, false>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::Begin(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit Begin(TArgs&&... args) :
-			super{ ImGui::Begin(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
-
-	class BeginChild :
-		public detail::ConditionalRAIIWrapper<BeginChild, &ImGui::EndChild, false>
-	{
-		using super = ConditionalRAIIWrapper<BeginChild, &ImGui::EndChild, false>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::BeginChild(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit BeginChild(TArgs&&... args) :
-			super{ ImGui::BeginChild(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
-
-	class BeginChildFrame :
-		public detail::ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndChildFrame, false>
-	{
-		using super = ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndChildFrame, false>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::BeginChildFrame(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit BeginChildFrame(TArgs&&... args) :
-			super{ ImGui::BeginChildFrame(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
-
-	class BeginCombo :
-		public detail::ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndCombo, true>
-	{
-		using super = ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndCombo, true>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::BeginCombo(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit BeginCombo(TArgs&&... args) :
-			super{ ImGui::BeginCombo(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
+	using Begin = detail::ConditionalRAIIWrapper<detail::begin, &ImGui::End, false>;
+	using BeginChild = detail::ConditionalRAIIWrapper<detail::beginChild, &ImGui::EndChild, false>;
+	using BeginChildFrame = detail::ConditionalRAIIWrapper<detail::beginChildFrame, &ImGui::EndChildFrame, false>;
+	using BeginCombo = detail::ConditionalRAIIWrapper<detail::beginCombo, &ImGui::EndCombo, true>;
+	using BeginListBox = detail::ConditionalRAIIWrapper<detail::beginListBox, &ImGui::EndListBox, true>;
+	using BeginMenuBar = detail::ConditionalRAIIWrapper<detail::beginMenuBar, &ImGui::EndMenuBar, true>;
+	using BeginMainMenuBar = detail::ConditionalRAIIWrapper<detail::beginMainMenuBar, &ImGui::EndMainMenuBar, true>;
 
 	using BeginDisabled = detail::RAIIWrapper<detail::beginDisabled, &ImGui::EndDisabled>;
 	using BeginGroup = detail::RAIIWrapper<&ImGui::BeginGroup, &ImGui::EndDisabled>;
-
-	class BeginListBox :
-		public detail::ConditionalRAIIWrapper<BeginListBox, &ImGui::EndListBox, true>
-	{
-		using super = ConditionalRAIIWrapper<BeginListBox, &ImGui::EndListBox, true>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::BeginListBox(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit BeginListBox(TArgs&&... args) :
-			super{ ImGui::BeginListBox(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
-
-	class BeginMenuBar :
-		public detail::ConditionalRAIIWrapper<BeginMenuBar, &ImGui::EndMenuBar, true>
-	{
-		using super = ConditionalRAIIWrapper<BeginMenuBar, &ImGui::EndMenuBar, true>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::BeginMenuBar(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit BeginMenuBar(TArgs&&... args) :
-			super{ ImGui::BeginMenuBar(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
-
-	class BeginMainMenuBar :
-		public detail::ConditionalRAIIWrapper<BeginMainMenuBar, &ImGui::EndMainMenuBar, true>
-	{
-		using super = ConditionalRAIIWrapper<BeginMainMenuBar, &ImGui::EndMainMenuBar, true>;
-
-	public:
-		template <class... TArgs>
-			requires requires
-			{
-				{ ImGui::BeginMainMenuBar(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-			}
-		explicit BeginMainMenuBar(TArgs&&... args) :
-			super{ ImGui::BeginMainMenuBar(std::forward<TArgs>(args)...) }
-		{
-		}
-	};
 }
 
 #endif
