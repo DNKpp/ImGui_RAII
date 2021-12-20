@@ -6,6 +6,11 @@ CPMAddPackage("gh:catchorg/Catch2#v2.x")
 
 add_executable(
 	ImGui_RAII_Tests
+	"${IMGUI_DIR}/imgui_widgets.cpp"
+	"${IMGUI_DIR}/imgui_tables.cpp"
+	"${IMGUI_DIR}/imgui_draw.cpp"
+	"${IMGUI_DIR}/imgui.cpp"
+
 	"main.cpp"
 	"tests.cpp"
  )
