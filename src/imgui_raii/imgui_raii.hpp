@@ -167,7 +167,6 @@ namespace imgui_raii
 			}
 		explicit Begin(TArgs&&... args) :
 			super{ ImGui::Begin(std::forward<TArgs>(args)...) }
-
 		{
 		}
 	};
@@ -185,7 +184,6 @@ namespace imgui_raii
 			}
 		explicit BeginChild(TArgs&&... args) :
 			super{ ImGui::BeginChild(std::forward<TArgs>(args)...) }
-
 		{
 		}
 	};
@@ -203,7 +201,6 @@ namespace imgui_raii
 			}
 		explicit BeginChildFrame(TArgs&&... args) :
 			super{ ImGui::BeginChildFrame(std::forward<TArgs>(args)...) }
-
 		{
 		}
 	};
@@ -221,7 +218,6 @@ namespace imgui_raii
 			}
 		explicit BeginCombo(TArgs&&... args) :
 			super{ ImGui::BeginCombo(std::forward<TArgs>(args)...) }
-
 		{
 		}
 	};
@@ -239,7 +235,23 @@ namespace imgui_raii
 			}
 		explicit BeginDisabled(TArgs&&... args) :
 			super{ ImGui::BeginDisabled(std::forward<TArgs>(args)...) }
+		{
+		}
+	};
 
+	class BeginGroup :
+		public detail::RAIIWrapper<BeginGroup, &ImGui::EndGroup>
+	{
+		using super = RAIIWrapper<BeginGroup, &ImGui::EndGroup>;
+
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::BeginGroup(std::declval<TArgs>()...) };
+			}
+		explicit BeginGroup(TArgs&&... args) :
+			super{ ImGui::BeginGroup(std::forward<TArgs>(args)...) }
 		{
 		}
 	};
