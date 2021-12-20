@@ -62,7 +62,8 @@ namespace imgui_raii::detail
 		[[nodiscard]]
 		TDerived& cast() noexcept
 		{
-			static_assert(std::derived_from<TDerived, ConditionalRAIIWrapper>, "TDerived must be a subclass if ConditionalRAIIWrapper");
+			static_assert(std::derived_from<TDerived, ConditionalRAIIWrapper>, "TDerived must be a subclass if ConditionalRAIIWrapper")
+				;
 			return static_cast<TDerived&>(*this);
 		}
 	};
@@ -70,6 +71,57 @@ namespace imgui_raii::detail
 
 namespace imgui_raii
 {
+	class Context
+	{
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::CreateContext(std::declval<TArgs>()...) } -> std::convertible_to<ImGuiContext*>;
+			}
+		[[nodiscard]]
+		explicit Context(TArgs&&... args) :
+			m_Context{ ImGui::CreateContext(std::forward<TArgs>(args)...) }
+		{
+		}
+
+		[[nodiscard]]
+		Context(Context&& other) noexcept :
+			m_Context{ std::exchange(other.m_Context, nullptr) }
+		{
+		}
+
+		Context& operator =(Context&& other) noexcept
+		{
+			std::swap(m_Context, other.m_Context);
+			return *this;
+		}
+
+		~Context() noexcept
+		{
+			if (m_Context)
+				ImGui::DestroyContext(m_Context);
+		}
+
+		[[nodiscard]]
+		explicit operator ImGuiContext*() const noexcept
+		{
+			return m_Context;
+		}
+
+		[[nodiscard]]
+		ImGuiContext* context() const noexcept
+		{
+			return m_Context;
+		}
+
+		Context(const Context&) = delete;
+		Context& operator =(const Context&) = delete;
+
+	private:
+		ImGuiContext* m_Context{};
+	};
+
 	class Begin :
 		public detail::ConditionalRAIIWrapper<Begin, &ImGui::End, false>
 	{
