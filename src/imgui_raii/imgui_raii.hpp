@@ -139,6 +139,24 @@ namespace imgui_raii
 		{
 		}
 	};
+
+	class BeginChild :
+		public detail::ConditionalRAIIWrapper<BeginChild, &ImGui::EndChild, false>
+	{
+		using super = ConditionalRAIIWrapper<BeginChild, &ImGui::EndChild, false>;
+
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::BeginChild(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
+			}
+		explicit BeginChild(TArgs&&... args) :
+			super{ ImGui::BeginChild(std::forward<TArgs>(args)...) }
+
+		{
+		}
+	};
 }
 
 #endif
