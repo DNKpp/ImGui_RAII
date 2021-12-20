@@ -10,6 +10,36 @@ namespace imgui_raii::detail
 {
 	using EndFunc = void(*)();
 
+	template <class TDerived, EndFunc VEnd>
+	class RAIIWrapper
+	{
+	public:
+		RAIIWrapper() noexcept = default;
+		~RAIIWrapper() noexcept
+		{
+			std::invoke(VEnd);
+		}
+
+		TDerived& operator /(std::invocable<> auto func)
+		{
+			std::invoke(std::ref(func));
+			return cast();
+		}
+
+		RAIIWrapper(const RAIIWrapper&) = delete;
+		RAIIWrapper& operator =(const RAIIWrapper&) = delete;
+		RAIIWrapper(RAIIWrapper&&) = delete;
+		RAIIWrapper& operator =(RAIIWrapper&&) = delete;
+
+	protected:
+		[[nodiscard]]
+		TDerived& cast() noexcept
+		{
+			static_assert(std::derived_from<TDerived, RAIIWrapper>, "TDerived must be a subclass if RAIIWrapper");
+			return static_cast<TDerived&>(*this);
+		}
+	};
+
 	template <class TDerived, EndFunc VEnd, bool VConditionalEnd>
 	class ConditionalRAIIWrapper
 	{
@@ -62,8 +92,10 @@ namespace imgui_raii::detail
 		[[nodiscard]]
 		TDerived& cast() noexcept
 		{
-			static_assert(std::derived_from<TDerived, ConditionalRAIIWrapper>, "TDerived must be a subclass if ConditionalRAIIWrapper")
-				;
+			static_assert(
+				std::derived_from<TDerived, ConditionalRAIIWrapper>,
+				"TDerived must be a subclass if ConditionalRAIIWrapper"
+			);
 			return static_cast<TDerived&>(*this);
 		}
 	};
@@ -171,6 +203,42 @@ namespace imgui_raii
 			}
 		explicit BeginChildFrame(TArgs&&... args) :
 			super{ ImGui::BeginChildFrame(std::forward<TArgs>(args)...) }
+
+		{
+		}
+	};
+
+	class BeginCombo :
+		public detail::ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndCombo, true>
+	{
+		using super = ConditionalRAIIWrapper<BeginChildFrame, &ImGui::EndCombo, true>;
+
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::BeginCombo(std::declval<TArgs>()...) } -> std::convertible_to<bool>;
+			}
+		explicit BeginCombo(TArgs&&... args) :
+			super{ ImGui::BeginCombo(std::forward<TArgs>(args)...) }
+
+		{
+		}
+	};
+
+	class BeginDisabled :
+		public detail::RAIIWrapper<BeginDisabled, &ImGui::EndDisabled>
+	{
+		using super = RAIIWrapper<BeginDisabled, &ImGui::EndDisabled>;
+
+	public:
+		template <class... TArgs>
+			requires requires
+			{
+				{ ImGui::BeginDisabled(std::declval<TArgs>()...) };
+			}
+		explicit BeginDisabled(TArgs&&... args) :
+			super{ ImGui::BeginDisabled(std::forward<TArgs>(args)...) }
 
 		{
 		}
