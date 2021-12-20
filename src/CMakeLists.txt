@@ -13,7 +13,7 @@ endif()
 add_library(ImGui_RAII INTERFACE)
 
 # Add pretty alias
-add_library(ImGui_RAII_Wrap::ImGui_RAII ALIAS ImGui_RAII)
+add_library(ImGui_RAII::ImGui_RAII ALIAS ImGui_RAII)
 
 target_include_directories(
 	ImGui_RAII
