@@ -106,7 +106,8 @@ void main()
 ```
 
 ## Installation with CMake
-This library can easily be integrated into your project via CMake target_link_libraries command.
+This library can easily be integrated into your project via CMake target_link_libraries command. ``ImGui_RAII`` must know the source directory of ``Dear ImGui``. To solve that
+the variable ``IMGUI_DIR`` must be set.
 
 ```cmake
 target_link_libraries(
@@ -127,6 +128,8 @@ FetchContent_Declare(
 	GIT_REPOSITORY	https://github.com/DNKpp/ImGui_RAII
 	GIT_TAG			"master"
 )
+
+set(IMGUI_DIR <path to imgui>)
 FetchContent_MakeAvailable(ImGui_RAII)
 
 ```
@@ -137,5 +140,6 @@ The [CPM](https://github.com/cpm-cmake/CPM.cmake) CMake module is a featureful w
 ```cmake
 include(CPM)
 
-CPMAddLibrary("gh:DNKpp/ImGui_RAII#master")
+set(IMGUI_DIR <path to imgui>)
+CPMAddPackage("gh:DNKpp/ImGui_RAII#master")
 ```
