@@ -134,7 +134,8 @@ FetchContent_MakeAvailable(ImGui_RAII)
 ```
 
 ### CPM
-The [CPM](https://github.com/cpm-cmake/CPM.cmake) CMake module is a featureful wrapper around the FetchContent feature. To use it, simply add ``CPM.cmake`` into your project folder. 
+The [CPM](https://github.com/cpm-cmake/CPM.cmake) CMake module is a featureful wrapper around the ``FetchContent`` feature. To use it simply add ``CPM.cmake`` or ``get_cmp.make`` (which will pull ``CPM.cmake``)
+from the latest release into your project folder and include it into your ``CMakeLists.txt``. 
 
 ```cmake
 include(CPM)
