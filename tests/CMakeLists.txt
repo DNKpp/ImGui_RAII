@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+include(get_cpm)
 include(CTest)
 
 CPMAddPackage("gh:catchorg/Catch2#v2.x")

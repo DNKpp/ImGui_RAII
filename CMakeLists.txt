@@ -5,7 +5,6 @@ project(imgui_raii)
 option(IMGUI_RAII_BUILD_TESTS "Determines whether library tests will be built or not." OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
-include("get_cpm")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 
