@@ -5,13 +5,20 @@ include(CTest)
 
 CPMAddPackage("gh:catchorg/Catch2#v2.x")
 
+CPMAddPackage(
+	NAME dear_imgui
+	VERSION 1.85
+	GITHUB_REPOSITORY "ocornut/imgui"
+	DOWNLOAD_ONLY YES
+)
+set(IMGUI_DIR "${dear_imgui_SOURCE_DIR}")
+FILE(GLOB IMGUI_SOURCES "${IMGUI_DIR}/*.cpp")
+
+add_subdirectory("../src" "../out")
+
 add_executable(
 	ImGui_RAII_Tests
-	"${IMGUI_DIR}/imgui_widgets.cpp"
-	"${IMGUI_DIR}/imgui_tables.cpp"
-	"${IMGUI_DIR}/imgui_draw.cpp"
-	"${IMGUI_DIR}/imgui.cpp"
-
+	"${IMGUI_SOURCES}"
 	"main.cpp"
 	"tests.cpp"
  )

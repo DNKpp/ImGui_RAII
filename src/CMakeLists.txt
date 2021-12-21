@@ -4,10 +4,19 @@ project(imgui_raii)
 
 option(IMGUI_RAII_BUILD_TESTS "Determines whether library tests will be built or not." OFF)
 
-# thankfully use the idea of: https://github.com/eliasdaler/imgui-sfml/blob/master/CMakeLists.txt
-if(NOT IMGUI_DIR)
-  set(IMGUI_DIR "" CACHE PATH "imgui top-level directory")
-  message(FATAL_ERROR "ImGui directory not found. Set IMGUI_DIR to imgui's top-level path (containing 'imgui.h' and other files).\n")
+# thankfully adapt the idea of: https://github.com/eliasdaler/imgui-sfml
+list(APPEND IMGUI_SEARCH_PATH
+  "${IMGUI_DIR}"
+)
+
+find_path(IMGUI_INCLUDE_DIR
+  NAMES imgui.h
+  PATHS "${IMGUI_SEARCH_PATH}"
+  NO_DEFAULT_PATH
+)
+
+if(NOT IMGUI_INCLUDE_DIR)
+  message(FATAL_ERROR "IMGUI imgui.h not found. Set IMGUI_DIR to imgui's top-level path (containing \"imgui.cpp\" and \"imgui.h\" files).\n")
 endif()
 
 add_library(ImGui_RAII INTERFACE)
@@ -26,5 +35,4 @@ target_compile_features(
 	ImGui_RAII
 	INTERFACE
 	cxx_std_20
-#	cxx_std_23	# forces msvc to use /std:latest due to issues with ranges header
 )

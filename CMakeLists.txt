@@ -6,10 +6,13 @@ option(IMGUI_RAII_BUILD_TESTS "Determines whether library tests will be built or
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 
-add_subdirectory("${PROJECT_SOURCE_DIR}/src")
-
 if(IMGUI_RAII_BUILD_TESTS)
 
+	message(WARNING "ImGui_RAII test building is enabled, thus dear_imgui library will be fetched.")
 	add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
+
+else()
+
+	add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 
 endif()
