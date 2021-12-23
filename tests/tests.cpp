@@ -75,6 +75,134 @@ TEMPLATE_TEST_CASE
 #pragma warning(disable: 26444)
 TEMPLATE_TEST_CASE
 (
+	"RAIIWrapper actions with bool parameter should be chainable with an arbitrary amount of lambdas.",
+	"[compile_check][RAIIWrapper]",
+	PushAllowKeyboardFocus,
+	PushButtonRepeat
+)
+#pragma warning(default: 26444)
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			TestType{ true } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			TestType{ true } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushClipRect should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushClipRect{ ImVec2{ 0, 0 }, ImVec2{ 0, 0 }, true } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushClipRect{ ImVec2{ 0, 0 }, ImVec2{ 0, 0 }, true } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushFont should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushFont{ nullptr } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushFont{ nullptr } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushID should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushID{ "Label##Test" } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushID{ "Label##Test" } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushItemWidth should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushItemWidth{ 1.f } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushItemWidth{ 1.f } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushStyleColor should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushStyleColor{ 0, 0 } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushStyleColor{ 0, 0 } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushStyleVar should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushStyleVar{ ImGuiStyleVar_WindowBorderSize, 0.f } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushStyleVar{ ImGuiStyleVar_WindowBorderSize, 0.f } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("PushTextWrapPos should compile and not trigger an assertion.", "[compile_check][RAIIWrapper]")
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			PushTextWrapPos{ 0.f } /
+				[] { ImGui::LabelText("label", "test"); };
+
+			PushTextWrapPos{ 0.f } /
+				[] { ImGui::LabelText("label", "test"); } /
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+#pragma warning(disable: 26444)
+TEMPLATE_TEST_CASE
+(
 	"ConditionalRAIIWrapper actions without parameter should be chainable with an arbitrary amount of lambdas.",
 	"[compile_check][ConditionalRAIIWrapper]",
 	BeginMenuBar,
@@ -138,7 +266,6 @@ TEST_CASE("BeginChildFrame should compile and not trigger an assertion", "[compi
 				[] { ImGui::LabelText("label2", "test"); };
 		};
 }
-
 
 TEST_CASE("BeginCombo should compile and not trigger an assertion", "[compile_check][ConditionalRAIIWrapper]")
 {
