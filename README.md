@@ -27,6 +27,7 @@ If you are already using ``Dear ImGui`` than to include this library just includ
 ## Example
 Be aware ``Dear ImGui`` isn't runable by its own, thus the examples below are not actually working.
 
+### Boolean checkable
 Below the straight forward way is shown.
 ```cpp
 #include <imgui_raii/imgui_raii.hpp>
@@ -62,7 +63,19 @@ void main()
 }
 ```
 
-Another nice syntax is to use the lambda chaining syntax.
+### Chainable with lambdas
+Another nice syntax is to use the lambda chaining.
+
+There are two different operators overloaded for chaining. As ``/`` often indicates the next level of a hirarchy (e.g in a file system)
+there is usually no precondition. Objects which are not boolean checkable (like ``imgui_raii::NewFrame``) use the ``operator /`` for chaining and the attached lambda
+will always executed. On the other hand ``ImGui`` heavily relys on functions which return a ``bool``, which indicates if code should be executed or not. For this reason
+the ``operator >`` comes into play. At first I thought about the ``operator =>``, because it will be used in the next c++ version for pattern matching and would fit very good here.
+Unfortunatly there is currently no such operator available in c++, thus I decided to use the most similar one: ``operator >``
+
+When this operator is used the attached lambda will only be executed if the object has a ``true`` state.
+
+Note that only one of these operators are available in each class.
+
 ```cpp
 #include <imgui_raii/imgui_raii.hpp>
 
@@ -76,7 +89,7 @@ void my_render()
 		[]
 		{
 			// ImGui::Begin does return a bool, thus the chained lambda will only be executed if true has been returned.
-			imgui_raii::Begin{ "Hello, World!" } /
+			imgui_raii::Begin{ "Hello, World!" } >
 				[]
 				{
 					// calling the original ImGui function
