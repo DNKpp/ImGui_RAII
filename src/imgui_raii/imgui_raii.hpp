@@ -22,10 +22,10 @@ namespace imgui_raii::detail
 	{
 	public:
 		template <class... TArgs>
-		requires requires
-		{
-			{ std::invoke(VBeginFunc, std::declval<TArgs>()...) };
-		}
+			requires requires
+			{
+				{ std::invoke(VBeginFunc, std::declval<TArgs>()...) };
+			}
 		explicit RAIIWrapper(TArgs&&... args)
 		{
 			std::invoke(VBeginFunc, std::forward<TArgs>(args)...);
@@ -53,10 +53,10 @@ namespace imgui_raii::detail
 	{
 	public:
 		template <class... TArgs>
-		requires requires
-		{
-			{ std::invoke(VBeginFunc, std::declval<TArgs>()...) } -> std::convertible_to<bool>;
-		}
+			requires requires
+			{
+				{ std::invoke(VBeginFunc, std::declval<TArgs>()...) } -> std::convertible_to<bool>;
+			}
 		explicit ConditionalRAIIWrapper(TArgs&&... args) :
 			m_Result{ std::invoke(VBeginFunc, std::forward<TArgs>(args)...) }
 		{
@@ -166,6 +166,30 @@ namespace imgui_raii::detail
 	{
 		return ImGui::BeginTable(std::forward<TArgs>(args)...);
 	};
+
+	constexpr auto pushId = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::PushID(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto pushStyleColor = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::PushStyleColor(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto popStyleColor = [] { return ImGui::PopStyleColor(1); };
+
+	constexpr auto pushStyleVar = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::PushStyleVar(std::forward<TArgs>(args)...);
+	};
+
+	constexpr auto popStyleVar = [] { return ImGui::PopStyleVar(1); };
+
+	constexpr auto pushTextWrapPos = []<class... TArgs>(TArgs&&... args)
+	{
+		return ImGui::PushTextWrapPos(std::forward<TArgs>(args)...);
+	};
 }
 
 namespace imgui_raii
@@ -237,6 +261,16 @@ namespace imgui_raii
 	using BeginGroup = detail::RAIIWrapper<&ImGui::BeginGroup, &ImGui::EndGroup>;
 	using BeginTooltip = detail::RAIIWrapper<&ImGui::BeginTooltip, &ImGui::EndTooltip>;
 	using NewFrame = detail::RAIIWrapper<&ImGui::NewFrame, &ImGui::Render>;
+
+	using PushAllowKeyboardFocus = detail::RAIIWrapper<&ImGui::PushAllowKeyboardFocus, &ImGui::PopAllowKeyboardFocus>;
+	using PushButtonRepeat = detail::RAIIWrapper<&ImGui::PushButtonRepeat, &ImGui::PopButtonRepeat>;
+	using PushClipRect = detail::RAIIWrapper<&ImGui::PushClipRect, &ImGui::PopClipRect>;
+	using PushFont = detail::RAIIWrapper<&ImGui::PushFont, &ImGui::PopFont>;
+	using PushID = detail::RAIIWrapper<detail::pushId, &ImGui::PopID>;
+	using PushItemWidth = detail::RAIIWrapper<&ImGui::PushItemWidth, &ImGui::PopItemWidth>;
+	using PushStyleColor = detail::RAIIWrapper<detail::pushStyleColor, detail::popStyleColor>;
+	using PushStyleVar= detail::RAIIWrapper<detail::pushStyleVar, detail::popStyleVar>;
+	using PushTextWrapPos= detail::RAIIWrapper<detail::pushTextWrapPos, &ImGui::PopTextWrapPos>;
 }
 
 #endif
