@@ -38,7 +38,7 @@ namespace imgui_raii::detail
 
 		RAIIWrapper& operator /(std::invocable<> auto func)
 		{
-			std::invoke(std::ref(func));
+			std::invoke(func);
 			return *this;
 		}
 
@@ -86,10 +86,10 @@ namespace imgui_raii::detail
 			return m_Result;
 		}
 
-		ConditionalRAIIWrapper& operator /(std::invocable<> auto func)
+		ConditionalRAIIWrapper& operator >(std::invocable<> auto func)
 		{
 			if (m_Result)
-				std::invoke(std::ref(func));
+				std::invoke(func);
 			return *this;
 		}
 
