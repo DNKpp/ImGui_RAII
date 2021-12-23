@@ -24,7 +24,7 @@ int main()
 	imgui_raii::NewFrame{} /
 		[]
 		{
-			imgui_raii::Begin{ "Hello, World!" } /
+			imgui_raii::Begin{ "Hello, World!" } >
 				[]
 				{
 					if (ImGui::Button("Test Button"))
