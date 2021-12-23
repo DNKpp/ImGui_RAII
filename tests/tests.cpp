@@ -24,7 +24,7 @@ namespace
 	}
 }
 
-TEST_CASE("BeginContext should be movabel.")
+TEST_CASE("BeginContext should be movabel.", "[context]")
 {
 	BeginContext context{};
 	BeginContext otherContext{ std::move(context) };
@@ -37,7 +37,7 @@ TEST_CASE("BeginContext should be movabel.")
 	REQUIRE(otherContext.context() == nullptr);
 }
 
-TEST_CASE("ConditionalRAIIWrapper should be usable in boolean contextes", "compile_check")
+TEST_CASE("ConditionalRAIIWrapper should be usable in boolean contextes", "[compile_check]")
 {
 	auto context = setup_context();
 	NewFrame frame{};
@@ -48,39 +48,16 @@ TEST_CASE("ConditionalRAIIWrapper should be usable in boolean contextes", "compi
 	}
 }
 
+#pragma warning(disable: 26444)
 TEMPLATE_TEST_CASE
 (
-	"Wrapped actions accepting one string parameter should be chainable with an arbitrary amount of lambdas.",
-	"[compile_check]",
-	Begin,
-	BeginChild,
-	BeginTabBar
-)
-{
-	auto context = setup_context();
-
-	NewFrame{} /
-		[]
-		{
-			TestType{ "Hello, World " } /
-				[] { ImGui::LabelText("label", "test"); };
-
-			TestType{ "Hello, World - again" } /
-				[] { ImGui::LabelText("label", "test"); } /
-				[] { ImGui::LabelText("label2", "test"); };
-		};
-}
-
-TEMPLATE_TEST_CASE
-(
-	"Wrapped actions without parameter should be chainable with an arbitrary amount of lambdas.",
-	"[compile_check]",
+	"RAIIWrapper actions without parameter should be chainable with an arbitrary amount of lambdas.",
+	"[compile_check][RAIIWrapper]",
 	BeginDisabled,
 	BeginGroup,
-	BeginMenuBar,
-	BeginMainMenuBar,
 	BeginTooltip
 )
+#pragma warning(default: 26444)
 {
 	auto context = setup_context();
 	NewFrame{} /
@@ -95,19 +72,121 @@ TEMPLATE_TEST_CASE
 		};
 }
 
-TEST_CASE("BeginTabItem should compile and not trigger an assertion", "[compile_check]")
+#pragma warning(disable: 26444)
+TEMPLATE_TEST_CASE
+(
+	"ConditionalRAIIWrapper actions without parameter should be chainable with an arbitrary amount of lambdas.",
+	"[compile_check][ConditionalRAIIWrapper]",
+	BeginMenuBar,
+	BeginMainMenuBar
+)
+#pragma warning(default: 26444)
+{
+	auto context = setup_context();
+	NewFrame{} /
+		[]
+		{
+			TestType{} >
+				[] { ImGui::LabelText("label", "test"); };
+
+			TestType{} >
+				[] { ImGui::LabelText("label", "test"); } >
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+#pragma warning(disable: 26444)
+TEMPLATE_TEST_CASE
+(
+	"ConditionalRAIIWrapper actions accepting one string parameter should be chainable with an arbitrary amount of lambdas.",
+	"[compile_check][ConditionalRAIIWrapper]",
+	Begin,
+	BeginChild,
+	BeginMenu,
+	BeginTabBar,
+	BeginListBox
+)
+#pragma warning(default: 26444)
+{
+	auto context = setup_context();
+
+	NewFrame{} /
+		[]
+		{
+			TestType{ "Hello, World " } >
+				[] { ImGui::LabelText("label", "test"); };
+
+			TestType{ "Hello, World - again" } >
+				[] { ImGui::LabelText("label", "test"); } >
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("BeginChildFrame should compile and not trigger an assertion", "[compile_check][ConditionalRAIIWrapper]")
 {
 	auto context = setup_context();
 
 	NewFrame frame{};
-	BeginTabBar{ "test" } /
+	Begin{ "Label##test" } >
 		[]
 		{
-			BeginTabItem{ "Hello, World " } /
+			BeginChildFrame{ ImGui::GetID("Label##test"), ImVec2{ 0, 0 } } >
 				[] { ImGui::LabelText("label", "test"); };
 
-			BeginTabItem{ "Hello, World - again" } /
-				[] { ImGui::LabelText("label", "test"); } /
+			BeginChildFrame{ ImGui::GetID("Label##test"), ImVec2{ 0, 0 } } >
+				[] { ImGui::LabelText("label", "test"); } >
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+
+TEST_CASE("BeginCombo should compile and not trigger an assertion", "[compile_check][ConditionalRAIIWrapper]")
+{
+	auto context = setup_context();
+
+	NewFrame frame{};
+	Begin{ "Label##test" } >
+		[]
+		{
+			BeginCombo{ "Hello, World", nullptr } >
+				[] { ImGui::LabelText("label", "test"); };
+
+			BeginCombo{ "Hello, World", nullptr } >
+				[] { ImGui::LabelText("label", "test"); } >
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("BeginTable should compile and not trigger an assertion", "[compile_check][ConditionalRAIIWrapper]")
+{
+	auto context = setup_context();
+
+	NewFrame frame{};
+	Begin{ "Label##test" } >
+		[]
+		{
+			BeginTable{ "Hello, World", 1 } >
+				[] { ImGui::LabelText("label", "test"); };
+
+			BeginTable{ "Hello, World", 1 } >
+				[] { ImGui::LabelText("label", "test"); } >
+				[] { ImGui::LabelText("label2", "test"); };
+		};
+}
+
+TEST_CASE("BeginTabItem should compile and not trigger an assertion", "[compile_check][ConditionalRAIIWrapper]")
+{
+	auto context = setup_context();
+
+	NewFrame frame{};
+	BeginTabBar{ "test" } >
+		[]
+		{
+			BeginTabItem{ "Hello, World" } >
+				[] { ImGui::LabelText("label", "test"); };
+
+			BeginTabItem{ "Hello, World - again" } >
+				[] { ImGui::LabelText("label", "test"); } >
 				[] { ImGui::LabelText("label2", "test"); };
 		};
 }
